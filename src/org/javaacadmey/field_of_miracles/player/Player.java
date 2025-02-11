@@ -8,6 +8,7 @@ public class Player {
     private final String name;
     private final String city;
     private PlayerAnswer playerAnswer = new PlayerAnswer();
+    private final static String RUSSIAN_ALPHABET = "йцукенгшщзхъфывапролджэячсмитьбюё";
 
     public Player(String name, String city) {
         this.name = name;
@@ -19,10 +20,20 @@ public class Player {
         while (true) {
             switch (scanner.next()) {
                 case "б" -> {
-                    return addLetterHelper(scanner);
+                    while (true) {
+                        System.out.println("Введите букву:");
+                        try {
+                            String letter = sayLetter(scanner);
+                            return addLetter(letter);
+                        } catch (UserInputException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    }
                 }
                 case "с" -> {
-                    addWordHelper(scanner);
+                    System.out.println("Введите слово:");
+                    String word = sayWord(scanner);
+                    return addWord(word);
                 }
                 default -> {
                     uncorrectChoiceMessage();
@@ -31,41 +42,27 @@ public class Player {
         }
     }
 
-    private void uncorrectChoiceMessage() {
-        System.out.println("Некорректное значение, введите \'б\' или \'с\'");
-    }
-
-    private String addWordHelper(Scanner scanner) {
+    private String sayLetter(Scanner userInput) throws UserInputException {
         while (true) {
-            System.out.println("Введите слово:");
-            return addWord(scanner);
-        }
-    }
-
-    private String addLetterHelper(Scanner scanner) {
-        while (true) {
-            System.out.println("Введите букву:");
-            try {
-                return addLetter(scanner);
-            } catch (UserInputException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-
-    private String addWord(Scanner scanner) {
-        String word = sayWord(scanner);
-        String subStringPlayerWord = subStringPlayerWord(word);
-        playerAnswer.setWordType(subStringPlayerWord);
-        return word;
-    }
-
-    private String addLetter(Scanner scanner) throws UserInputException {
-        while (true) {
-            String letter = sayLetter(scanner);
-            playerAnswer.setLetterType(letter);
+            String letter = userInput.next();
+            checkLetterInput(letter);
             return letter;
         }
+    }
+
+    private String sayWord(Scanner userInput) {
+        System.out.printf("Игрок %s: %s", name, userInput.next());
+        return userInput.nextLine();
+    }
+
+    private String addLetter(String letter) throws UserInputException {
+        playerAnswer.setLetterType(letter);
+        return letter;
+    }
+
+    private String addWord(String word) {
+        playerAnswer.setWordType(word);
+        return word;
     }
 
     private void displayInfo() {
@@ -73,24 +70,17 @@ public class Player {
         System.out.println("\nЕсли хотите букву нажмите \'б\' и enter, если хотите слово нажмите \'c\' и enter");
     }
 
-    private String sayLetter(Scanner userInput) throws UserInputException {
-        while (true) {
-            String letter = userInput.next();
-            if (letter.length() > 1) {
-                throw new UserInputException("Ошибка! это не русская буква, введите русскую букву!");
-            } else {
-                return letter;
-            }
+    private void uncorrectChoiceMessage() {
+        System.out.println("Некорректное значение, введите \'б\' или \'с\'");
+    }
+
+    private void checkLetterInput(String letter) throws UserInputException {
+        if (letter.length() > 1 || !RUSSIAN_ALPHABET.contains(letter)) {
+            throw new UserInputException("Ошибка! это не русская буква, введите русскую букву!");
         }
     }
 
-    private String sayWord(Scanner userInput) {
-        return "Игрок %s: %s".formatted(name, userInput.next());
-    }
-
-    private String subStringPlayerWord(String word) {
-        return word.substring(word.indexOf(":") + 2);
-    }
+    //getters
 
     public String getName() {
         return name;
@@ -98,13 +88,5 @@ public class Player {
 
     public String getCity() {
         return city;
-    }
-
-    public PlayerAnswer getPlayerAnswer() {
-        return playerAnswer;
-    }
-
-    public void setPlayerAnswer(PlayerAnswer playerAnswer) {
-        this.playerAnswer = playerAnswer;
     }
 }

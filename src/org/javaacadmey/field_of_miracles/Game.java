@@ -67,14 +67,19 @@ public class Game {
         }
         return names;
     }
+
     private boolean isWin() {
         return tableau.checkTableauFill();
     }
 
-    public boolean playerTurn(Scanner question, Player player){
-        while (isWin()){
-            player.turn(scanner);
-            tableau.
+    public boolean playerTurn(Scanner question, Player player) {
+        if (isWin()) {
+            String playerAnswer = player.turn(scanner);
+            tableau.openLetter(playerAnswer);
+            tableau.displayLetter();
+            return true;
+        } else {
+            return false;
         }
     }
 
